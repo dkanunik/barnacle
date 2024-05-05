@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+
+  mongo:
+    image: mongo
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - /data/db
+      - /data/configdb
+    networks:
+      - dev-net
+
+  selenium:
+    image: selenium/standalone-chrome-debug
+    container_name: selenium
+    volumes:
+      - /dev/shm:/dev/shm
+    ports:
+      - "4444:4444"
+      - "5900:5900"
+    networks:
+      - dev-net
+
+  back:
+    container_name: back
+    image: dkanunik/barnacle-back:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGO_HOST=$MONGO_HOST
+    networks:
+      - dev-net
+    depends_on:
+      - mongo
+
+  front:
+    container_name: front
+    image: dkanunik/barnacle-front:latest
+    ports:
+      - "4200:4200"
+    networks:
+      - dev-net
+    depends_on:
+      - back
+
+networks:
+  dev-net:
+    external: true
+
+
